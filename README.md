@@ -71,6 +71,58 @@
 *   **Type-safe schema validation** with Zod.
 *   **Standardized API interfaces** across providers.
 *   **Edge runtime support** for optimal performance.
+--
+## Simple server
+```
+import { openai } from "@ai-sdk/openai";
+import { streamText } from "ai";
+export async function POST(req) {
+  const { messages } = await req.json();
+  const result = await streamText({ 
+    model: openai("gpt-4o-mini"), messages });
+  return result.toAIStreamResponse();}
+```
+--
+## Simple client
+```
+import { readStreamableValue } from "ai/rsc";
+        onClick={async () => {
+          const { output } = await generate({inputText});
+          for await (const delta of readStreamableValue(
+            output
+          )) {
+            setMyState(
+              (currentGeneration) => `${currentGeneration}${delta}`
+            );
+          } }}
+```
+--
+## Zod json generate
+```
+      const { partialObjectStream } = await streamObject({
+      model: openai("gpt-4o-mini"),
+      system: "You generate fake data for three people",
+      prompt: input,
+      schema: z.object({ people: z.array(
+          z.object({ name: z.string().describe("name of a fake person"),
+            address: z.string().describe("US address format"),
+            age: z.number()
+          }) ) }) });
+    for await (const partialObject of partialObjectStream) {
+      stream.update(partialObject);
+    } stream.done();
+```
+--
+## Use chat
+```
+import { useChat } from "ai/react";
+  const {
+    messages, input, handleInputChange, handleSubmit, isLoading
+  } = useChat();
+
+<form onSubmit={handleSubmit}>
+<input  value={input} placeholder="..." onChange={handleInputChange} disabled={isLoading} />
+```
 ---
 ## Example Project: API Structure
 Comprehensive API implementation showcasing different AI capabilities.
